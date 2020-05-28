@@ -75,11 +75,10 @@ func (r *rect) save(f io.Writer,
 	return
 }
 
-func Load(
+func (tr *RTree) Load(
 	f io.Reader,
 	loadValue func (r io.Reader, obuf []byte) (interface{}, []byte, error),
-) (tr *RTree, err error) {
-	tr = &RTree{}
+) (err error) {
 	var word uint64
 
 	if err = binary.Read(f, binary.BigEndian, &word); err != nil {
