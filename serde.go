@@ -165,7 +165,7 @@ func load(
 
 func (r *rect) setMinMaxFromFile(f io.Reader, buf []byte) (err error) {
 	buf = buf[:32]
-	if _, err = f.Read(buf); err != nil {
+	if _, err = io.ReadFull(f, buf); err != nil {
 		return
 	}
 	floatsMinMax := bytesAsFloats(buf)
