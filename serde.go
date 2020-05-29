@@ -2,7 +2,6 @@ package rbang
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io"
 	"reflect"
 	"unsafe"
@@ -12,18 +11,15 @@ func (tr *RTree) Save(f io.Writer, saveValue func (w io.Writer, value interface{
 	if err = binary.Write(f, binary.BigEndian, uint64(tr.height)); err != nil {
 		return
 	}
-	fmt.Printf("Wrote height\n")
 
 	if err = binary.Write(f, binary.BigEndian, uint64(tr.count)); err != nil {
 		return
 	}
-	fmt.Printf("Wrote count\n")
 
 	gotTree := tr.root.data != nil
 	if err = binary.Write(f, binary.BigEndian, gotTree); err != nil {
 		return
 	}
-	fmt.Printf("Wrote gotTree\n")
 
 	if gotTree {
 		if err = tr.root.save(f, saveValue, tr.height); err != nil {
@@ -44,20 +40,17 @@ func (r *rect) save(f io.Writer,
 	if _, err = f.Write(floatsAsBytes(r.max[:])); err != nil {
 		return
 	}
-	fmt.Printf("Wrote node min/max\n")
 
 	n := r.data.(*node)
 	nItems := uint8(n.count)
 	if err = binary.Write(f, binary.BigEndian, nItems); err != nil {
 		return
 	}
-	fmt.Printf("Wrote nItems: %v\n", nItems)
 
 	gotChildren := height > 0
 	if err = binary.Write(f, binary.BigEndian, gotChildren); err != nil {
 		return
 	}
-	fmt.Printf("Wrote gotChildren: %v\n", gotChildren)
 
 	if gotChildren {
 		for i := 0; i < n.count; i++ {
@@ -90,20 +83,17 @@ func (tr *RTree) Load(
 	if err = binary.Read(f, binary.BigEndian, &word); err != nil {
 		return
 	}
-	fmt.Printf("Read height\n")
 	tr.height = int(word)
 
 	if err = binary.Read(f, binary.BigEndian, &word); err != nil {
 		return
 	}
-	fmt.Printf("Read count\n")
 	tr.count = int(word)
 
 	var gotTree bool
 	if err = binary.Read(f, binary.BigEndian, &gotTree); err != nil {
 		return
 	}
-	fmt.Printf("Read gotTree: %v\n", gotTree)
 
 	if gotTree {
 		// this buffer will be re-used or replaced for a larger one, as needed
@@ -134,14 +124,12 @@ func load(
 	if err = binary.Read(f, binary.BigEndian, &short); err != nil {
 		return
 	}
-	fmt.Printf("Read numItems: %d\n", short)
 	n.count = int(short)
 
 	var gotChildren bool
 	if err = binary.Read(f, binary.BigEndian, &gotChildren); err != nil {
 		return
 	}
-	fmt.Printf("Read gotChildren: %v\n", gotChildren)
 
 	if gotChildren {
 		for i := 0; i < n.count; i++ {
