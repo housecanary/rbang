@@ -19,7 +19,13 @@ func (tr *RTree) Save(f io.Writer, saveValue func (w io.Writer, value interface{
 	}
 	fmt.Printf("Wrote count\n")
 
-	if tr.root.data != nil {
+	gotTree := tr.root.data != nil
+	if err = binary.Write(f, binary.BigEndian, gotTree); err != nil {
+		return
+	}
+	fmt.Printf("Wrote gotTree\n")
+
+	if gotTree {
 		if err = tr.root.save(f, saveValue, tr.height); err != nil {
 			return
 		}
@@ -93,10 +99,18 @@ func (tr *RTree) Load(
 	fmt.Printf("Read count\n")
 	tr.count = int(word)
 
-	// this buffer will be re-used or replaced for a larger one, as needed
-	buf := make([]byte, 32)
-	if tr.root, buf, err = load(f, buf, loadValue); err != nil {
+	var gotTree bool
+	if err = binary.Read(f, binary.BigEndian, &gotTree); err != nil {
 		return
+	}
+	fmt.Printf("Read gotTree: %v\n", gotTree)
+
+	if gotTree {
+		// this buffer will be re-used or replaced for a larger one, as needed
+		buf := make([]byte, 32)
+		if tr.root, buf, err = load(f, buf, loadValue); err != nil {
+			return
+		}
 	}
 
 	return
